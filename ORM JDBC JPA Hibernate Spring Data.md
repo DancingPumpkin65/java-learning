@@ -3,7 +3,7 @@ maaping objet relationnel (correspondance entre => approche `oriente objet`: cre
 `bases de donnees relationnel`: contenant les tableaux relationnel des donnees)
 
 ### EXEMPLE: rechercher des produits Image: 
-![Produit Screenshot](images/app oriente objet.png)
+![Produit Screenshot](images/app-oriente-objet.png)
 1. creer class Produit:
 ```java
 public class Produit(
