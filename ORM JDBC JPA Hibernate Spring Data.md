@@ -43,7 +43,7 @@ public List<Produit> findByDesignation(String kw) {
 }
 ```
 
-* if u did PreparedStatement ps=conn.preparedStatement("SELCT * FROM PRODUITS WHERE DISIGNATION LIKE" + "'" + "kw" + "'") there s a probability of sql injection to ur code (fail de securite) so u have to do tests concatination if kw contain DROP DLETE ... keywords so best practice is ps.serString(1, keyword)
+* if u did PreparedStatement ps=conn.preparedStatement("SELCT * FROM PRODUITS WHERE DISIGNATION LIKE" + "'" + "%" + kw + "%" + "'") there s a probability of sql injection to ur code (fail de securite) so u have to do tests concatination if kw contain DROP DLETE ... keywords so best practice is ps.serString(1, keyword)
 * instead of using this heavy code we use a framework called HIBERNATE to do object relational mapping 
 
 ---
@@ -85,3 +85,57 @@ public class Produit implements Serializable {
 
 ---
 
+### Config unite de persistence XML:
+
+precise `name` / `provider` (Hibernate) / `properties` => connection + username + pwd + driver_class (jdbc Driver) / `dialect` specified sql/oracle ... version / `hbm2ddl` hibernate mapping to data definition language - theres also instead of ddl dml (data manipulation language) or dcl (data control language)
+
+* CAREFUL IN hbm2ddl to do value create cause that we ll delete already existing tables / create is only used in developppemnt so u have to separate u re project to 4 environments: `developpement`, `test`, `pre-production`, `production`
+
+### Ajouter un produit: methode persist()
+-> NORMAL JPA:
+```java
+public void save(Produit p) {
+	EntityTransaction transaction=entityManager.getTransaction(); //create transaction
+	transaction.begin(); //start transaction
+	try {
+		entityManager.persist(p); //register product datas in database
+		transaction.commit(); //validate transaction
+	} catch (Exception e) {
+		transaction.rollback();
+		e.printStackTrace();
+	}
+}
+```
+-> Spring Boot:
+```java
+@Transactional //spring method to manage transactions
+public void save(Produit p) {
+	entityManager.persist(p);
+}
+```
+
+### Consulter les produits: createQuery()
+```java
+public List<Produit> findAll() {
+	Query query=entityManager.createQuery("select p from Produit p"); //it s not sql it s hql hibernate query languge
+	return query.getResultList();
+}
+```
+* `HQL` used to manipulate relations between classes and relation classes u can use instead of `createQuery` - `createSQLQuery` which is bad practice
+
+### Consulter les produits par mot cle: createQuery()
+```java
+public List<Produit> findByDesignation(String kw) {
+	Query query=entityManager.createQuery("select p from Produit p where p.designation like :x"); //it s not sql it s hql hibernate query languge
+	query.setParameter("x" + "%" + kw + "%" + "'");
+	return query.getResultList();
+}
+```
+
+### Consulter un produits: methode find()
+```java
+public Produit findById(Long idProduit) {
+	Produit p=entityManager.find(Produit.class, idProduit);
+	return p;
+}
+```
