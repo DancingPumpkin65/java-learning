@@ -139,3 +139,45 @@ public Produit findById(Long idProduit) {
 	return p;
 }
 ```
+
+### Mettre a jour un produits: methode merge()
+```java
+public void update(Produit p) {
+	entityManager.merge(p);
+}
+```
+
+### Supprimer un produits: methode remove()
+```java
+public void deleteById(Long idProduit) {
+	Produit p=entityManager.find(Produit.class, idProduit);
+	entityManager.remove(p);
+}
+```
+
+to save a client instead of repeating this:
+```java
+@Transactional
+public void save(Client c) {
+	entityManager.persist(c);
+}
+```
+a better practice is to do this:
+```java
+public void save<T>(T t) {
+	entityManager.persist(t);
+}
+```
+but and even better practice is to create an interface:
+```java
+public class Repository<T, U> {
+	public T save(T o) {
+		entityManager.persist(t);
+	}
+	public List<T> findAll() {
+		//code
+	}
+	//other methods ...
+}
+```
+=> So spring data has the role to create a class that has many methods that can be used by ur entities
